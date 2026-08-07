@@ -3,6 +3,7 @@
 [![Board](https://img.shields.io/badge/Board-ESP8266_NodeMCU-blue.svg)](https://www.espressif.com/en/products/socs/esp8266)
 [![IDE](https://img.shields.io/badge/IDE-Arduino_IDE-00979D.svg)](https://www.arduino.cc/en/software)
 [![Cloud](https://img.shields.io/badge/Cloud-Blynk_IoT-23b47e.svg)](https://blynk.io/)
+[![Status](https://img.shields.io/badge/Status-Completed-success.svg)](README.md)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 An IoT-based infant safety monitoring system built using the **ESP8266 NodeMCU**, **DHT11**, **Analog Sound Sensor**, and **PIR Motion Sensor**. It continuously monitors ambient temperature, humidity, noise/crying level, and motion around the crib. 
