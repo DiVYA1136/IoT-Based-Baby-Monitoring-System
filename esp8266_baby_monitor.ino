@@ -2,7 +2,7 @@
   ================================================================================
   ESP8266 IoT Baby Monitoring System with Mobile Wi-Fi Notifications
   ================================================================================
-  Author: Senior IoT & Embedded Systems Engineer
+  Author: DiVYA1136
   Target Board: ESP8266 NodeMCU v1.0 (ESP-12E Module)
   
   Features:
