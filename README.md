@@ -142,6 +142,18 @@ int SOUND_THRESHOLD    = 700;   // ADC value (0-1023)
 
 ---
 
+## 📋 Pre-Deployment Checklist
+
+Before deploying the monitoring system near the infant's crib, verify the following:
+
+- [x] **2.4GHz Wi-Fi Network**: Ensure the ESP8266 is configured for a 2.4GHz network (5GHz Wi-Fi networks are not supported).
+- [x] **Power Supply**: Use a stable 5V / 1A USB power adapter or 18650 Li-ion battery shield for continuous operation.
+- [x] **Sensors Calibrated**: Adjust the PIR motion module sensitivity and analog sound module potentiometer for optimal noise thresholding.
+- [x] **Blynk Push Notifications**: Confirm push notification permissions are allowed for the Blynk mobile app on your smartphone.
+- [x] **Cooldown Test**: Verify that the 60-second notification cooldown operates correctly to prevent notification spam.
+
+---
+
 ## 📑 Project Documentation
 
 For complete detailed architecture, testing procedures, circuit diagrams, and troubleshooting steps, refer to:
@@ -152,3 +164,4 @@ For complete detailed architecture, testing procedures, circuit diagrams, and tr
 ## 📜 License
 
 This project is licensed under the [MIT License](LICENSE) - open for educational and personal use.
+
