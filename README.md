@@ -101,6 +101,7 @@ Install via **Tools -> Manage Libraries...**:
 2. Create a **Template** named `Baby Monitor` (Hardware: `ESP8266`, Connection: `WiFi`).
 3. Add **Events** under template settings:
    - `temp_alert`: High Temperature Warning
+   - `temp_low_alert`: Low Temperature / Hypothermia Risk Warning
    - `sound_alert`: High Sound/Crying Warning
    - `motion_alert`: Movement Detected Warning
    - *Ensure **Send Push Notification** is enabled for all events.*
@@ -110,6 +111,9 @@ Install via **Tools -> Manage Libraries...**:
    - `V2`: Sound Level (`Integer`, 0-1023)
    - `V3`: Motion State (`Integer`, 0/1)
    - `V4`: Alert Status (`String`)
+   - `V5`: Wi-Fi Signal Strength / RSSI (`Integer`, dBm)
+   - `V6`: Dynamic High Temp Threshold Setting (`Double`, 20-45 °C)
+   - `V7`: Dynamic Sound Threshold Setting (`Integer`, 100-1023)
 5. Create a new **Device** from template and copy your credentials:
    ```cpp
    #define BLYNK_TEMPLATE_ID   "TMPLxxxxxx"

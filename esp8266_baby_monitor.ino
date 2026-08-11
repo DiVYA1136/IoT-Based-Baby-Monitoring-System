@@ -44,6 +44,7 @@ const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";  // Replace with your Wi-Fi Pa
 #define BUZZER_PIN    12  // NodeMCU D6 (GPIO 12) - Local Alert Buzzer
 
 // Safety Thresholds (Example settings - adjust after physical testing)
+float MIN_TEMPERATURE  = 18.0;  // Celsius threshold for low temperature alert
 float MAX_TEMPERATURE  = 30.0;  // Celsius threshold for high temperature alert
 int SOUND_THRESHOLD    = 700;   // Analog reading (0 - 1023) sound threshold
 
@@ -219,15 +220,22 @@ void readSensors() {
   updateDashboard();
 }
 
-// Check High Temperature Threshold
+// Check Temperature Thresholds (High and Low)
 void checkTemperature() {
   if (currentTemp > MAX_TEMPERATURE) {
     Serial.println(F("WARNING: High temperature detected!"));
     
-    String alertMsg = "⚠️ Baby Monitoring Alert:\nTemperature is above the configured threshold.\nCurrent temperature: " 
+    String alertMsg = "⚠️ Baby Monitoring Alert:\nTemperature is above maximum safety limit.\nCurrent temperature: " 
                       + String(currentTemp, 1) + " °C";
                       
     sendNotification("temp_alert", alertMsg);
+  } else if (currentTemp < MIN_TEMPERATURE && currentTemp > 0.0) {
+    Serial.println(F("WARNING: Low temperature detected!"));
+
+    String alertMsg = "❄️ Baby Monitoring Alert:\nTemperature is below minimum comfortable limit.\nCurrent temperature: " 
+                      + String(currentTemp, 1) + " °C";
+
+    sendNotification("temp_low_alert", alertMsg);
   }
 }
 
@@ -256,7 +264,7 @@ void checkMotion() {
 
 // Evaluate Overall System Status and Control Local Hardware Indicators
 void evaluateSystemStatus() {
-  if (currentTemp > MAX_TEMPERATURE || currentSound > SOUND_THRESHOLD || currentMotion) {
+  if (currentTemp > MAX_TEMPERATURE || currentTemp < MIN_TEMPERATURE || currentSound > SOUND_THRESHOLD || currentMotion) {
     isSystemNormal = false;
     digitalWrite(LED_PIN, HIGH);     // Turn ON warning LED
     digitalWrite(BUZZER_PIN, HIGH);  // Turn ON local buzzer
@@ -308,6 +316,8 @@ void updateDashboard() {
   // V3: Motion State (0=Clear, 1=Detected)
   // V4: System Alert Status (String)
   // V5: Wi-Fi Signal Strength / Status
+  // V6: Dynamic High Temp Threshold Input (25.0 - 40.0 °C)
+  // V7: Dynamic Sound Threshold Input (100 - 1023)
 
   Blynk.virtualWrite(V0, currentTemp);
   Blynk.virtualWrite(V1, currentHumidity);
@@ -315,4 +325,25 @@ void updateDashboard() {
   Blynk.virtualWrite(V3, currentMotion ? 1 : 0);
   Blynk.virtualWrite(V4, isSystemNormal ? "NORMAL" : "ALERT!");
   Blynk.virtualWrite(V5, WiFi.RSSI()); // Wi-Fi RSSI (dBm)
+}
+
+// Dynamic High Temperature Threshold update from Blynk App Slider/Numeric Input (V6)
+BLYNK_WRITE(V6) {
+  float val = param.asFloat();
+  if (val >= 20.0 && val <= 45.0) {
+    MAX_TEMPERATURE = val;
+    Serial.print(F("[BLYNK] Dynamic update: MAX_TEMPERATURE set to "));
+    Serial.print(MAX_TEMPERATURE, 1);
+    Serial.println(F(" °C"));
+  }
+}
+
+// Dynamic Sound Threshold update from Blynk App Slider/Numeric Input (V7)
+BLYNK_WRITE(V7) {
+  int val = param.asInt();
+  if (val >= 100 && val <= 1023) {
+    SOUND_THRESHOLD = val;
+    Serial.print(F("[BLYNK] Dynamic update: SOUND_THRESHOLD set to "));
+    Serial.println(SOUND_THRESHOLD);
+  }
 }
