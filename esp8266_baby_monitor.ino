@@ -26,6 +26,7 @@
 #include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
 #include <DHT.h>
+#include <EEPROM.h>
 
 // ================================================================================
 // CONFIGURATION & THRESHOLD VARIABLES
@@ -58,9 +59,14 @@ float currentHumidity   = 0.0;
 int currentSound        = 0;
 bool currentMotion      = false;
 bool isSystemNormal     = true;
+bool isAlarmMuted       = false; // Remote alarm mute toggle state
 
 unsigned long lastSensorReadTime  = 0;
 unsigned long lastNotificationTime = 0;
+
+// EEPROM Storage Configuration
+const int EEPROM_SIZE = 512;
+const uint16_t EEPROM_MAGIC = 0xB4B0; // Magic key to verify initialized memory
 
 // Initialize DHT Sensor and Blynk Timer
 DHT dht(DHTPIN, DHTTYPE);
@@ -76,6 +82,39 @@ void checkMotion();
 void evaluateSystemStatus();
 void sendNotification(String eventCode, String alertMessage);
 void updateDashboard();
+void loadThresholdsFromEEPROM();
+void saveThresholdsToEEPROM();
+
+// ================================================================================
+// EEPROM NON-VOLATILE MEMORY HELPERS
+// ================================================================================
+
+void loadThresholdsFromEEPROM() {
+  EEPROM.begin(EEPROM_SIZE);
+  uint16_t magic = 0;
+  EEPROM.get(0, magic);
+  if (magic == EEPROM_MAGIC) {
+    EEPROM.get(2, MIN_TEMPERATURE);
+    EEPROM.get(6, MAX_TEMPERATURE);
+    EEPROM.get(10, SOUND_THRESHOLD);
+    Serial.println(F("[EEPROM] Loaded persistent thresholds from memory:"));
+    Serial.print(F("        MIN_TEMP: ")); Serial.print(MIN_TEMPERATURE, 1); Serial.println(F(" °C"));
+    Serial.print(F("        MAX_TEMP: ")); Serial.print(MAX_TEMPERATURE, 1); Serial.println(F(" °C"));
+    Serial.print(F("        SOUND_TH: ")); Serial.println(SOUND_THRESHOLD);
+  } else {
+    Serial.println(F("[EEPROM] First boot or default memory. Writing defaults..."));
+    saveThresholdsToEEPROM();
+  }
+}
+
+void saveThresholdsToEEPROM() {
+  EEPROM.put(0, EEPROM_MAGIC);
+  EEPROM.put(2, MIN_TEMPERATURE);
+  EEPROM.put(6, MAX_TEMPERATURE);
+  EEPROM.put(10, SOUND_THRESHOLD);
+  EEPROM.commit();
+  Serial.println(F("[EEPROM] Thresholds saved to persistent flash memory."));
+}
 
 // ================================================================================
 // INITIALIZATION SETUP
@@ -88,6 +127,9 @@ void setup() {
   Serial.println(F("=========================================="));
   Serial.println(F(" ESP8266 Infant Safety Monitoring System  "));
   Serial.println(F("=========================================="));
+
+  // Load saved threshold settings from non-volatile EEPROM
+  loadThresholdsFromEEPROM();
 
   // Configure Hardware Pins
   pinMode(PIR_PIN, INPUT);
@@ -267,7 +309,11 @@ void evaluateSystemStatus() {
   if (currentTemp > MAX_TEMPERATURE || currentTemp < MIN_TEMPERATURE || currentSound > SOUND_THRESHOLD || currentMotion) {
     isSystemNormal = false;
     digitalWrite(LED_PIN, HIGH);     // Turn ON warning LED
-    digitalWrite(BUZZER_PIN, HIGH);  // Turn ON local buzzer
+    if (!isAlarmMuted) {
+      digitalWrite(BUZZER_PIN, HIGH);  // Turn ON local buzzer if not muted
+    } else {
+      digitalWrite(BUZZER_PIN, LOW);   // Muted remotely by caregiver
+    }
     Serial.println(F("System Status: ALERT / ABNORMAL"));
   } else {
     isSystemNormal = true;
@@ -315,16 +361,23 @@ void updateDashboard() {
   // V2: Sound Level (0-1023)
   // V3: Motion State (0=Clear, 1=Detected)
   // V4: System Alert Status (String)
-  // V5: Wi-Fi Signal Strength / Status
-  // V6: Dynamic High Temp Threshold Input (25.0 - 40.0 °C)
+  // V5: Wi-Fi Signal Strength / Status (dBm)
+  // V6: Dynamic High Temp Threshold Input (20.0 - 45.0 °C)
   // V7: Dynamic Sound Threshold Input (100 - 1023)
+  // V8: Remote Alarm Mute Switch (0=Unmuted, 1=Muted)
+  // V9: System Diagnostics & Uptime String
 
   Blynk.virtualWrite(V0, currentTemp);
   Blynk.virtualWrite(V1, currentHumidity);
   Blynk.virtualWrite(V2, currentSound);
   Blynk.virtualWrite(V3, currentMotion ? 1 : 0);
   Blynk.virtualWrite(V4, isSystemNormal ? "NORMAL" : "ALERT!");
-  Blynk.virtualWrite(V5, WiFi.RSSI()); // Wi-Fi RSSI (dBm)
+  Blynk.virtualWrite(V5, WiFi.RSSI());
+  Blynk.virtualWrite(V8, isAlarmMuted ? 1 : 0);
+
+  // Transmit Diagnostic Heartbeat Telemetry (Uptime & Free Memory)
+  String diagInfo = "Uptime: " + String(millis() / 60000) + "m | FreeHeap: " + String(ESP.getFreeHeap()) + "B";
+  Blynk.virtualWrite(V9, diagInfo);
 }
 
 // Dynamic High Temperature Threshold update from Blynk App Slider/Numeric Input (V6)
@@ -332,6 +385,7 @@ BLYNK_WRITE(V6) {
   float val = param.asFloat();
   if (val >= 20.0 && val <= 45.0) {
     MAX_TEMPERATURE = val;
+    saveThresholdsToEEPROM();
     Serial.print(F("[BLYNK] Dynamic update: MAX_TEMPERATURE set to "));
     Serial.print(MAX_TEMPERATURE, 1);
     Serial.println(F(" °C"));
@@ -343,7 +397,20 @@ BLYNK_WRITE(V7) {
   int val = param.asInt();
   if (val >= 100 && val <= 1023) {
     SOUND_THRESHOLD = val;
+    saveThresholdsToEEPROM();
     Serial.print(F("[BLYNK] Dynamic update: SOUND_THRESHOLD set to "));
     Serial.println(SOUND_THRESHOLD);
+  }
+}
+
+// Remote Alarm Mute Switch from Blynk App Button Widget (V8)
+BLYNK_WRITE(V8) {
+  int val = param.asInt();
+  isAlarmMuted = (val == 1);
+  if (isAlarmMuted) {
+    digitalWrite(BUZZER_PIN, LOW); // Silence active buzzer immediately
+    Serial.println(F("[BLYNK] Remote Alarm MUTE activated by caregiver."));
+  } else {
+    Serial.println(F("[BLYNK] Remote Alarm UNMUTED by caregiver."));
   }
 }

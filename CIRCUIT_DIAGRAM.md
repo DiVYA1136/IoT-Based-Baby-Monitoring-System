@@ -60,3 +60,20 @@ This document provides complete electrical connection details, voltage requireme
    - If using a bare 4-pin DHT11 chip (instead of a 3-pin module), add a **10kΩ pull-up resistor** between VCC and DATA lines.
 3. **Sound Sensor Potentiometer Calibration**:
    - Turn the blue potentiometer screw on the sound sensor module to calibrate the ambient noise baseline.
+
+---
+
+## 📱 Virtual Pin Mapping & Cloud Control Matrix
+
+| Virtual Pin | Parameter / Function | Data Type | Range / Options | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| **V0** | Temperature | Float | -40 to 80 °C | Live ambient temperature telemetry |
+| **V1** | Humidity | Float | 0 to 100 % | Live ambient relative humidity |
+| **V2** | Sound Level | Integer | 0 to 1023 | Analog microphone sound intensity |
+| **V3** | Motion State | Integer | 0 / 1 | 0 = Clear, 1 = Crib Motion Detected |
+| **V4** | System Status | String | NORMAL / ALERT | System health overview |
+| **V5** | Wi-Fi Signal | Integer | dBm | Local Wi-Fi RSSI signal strength |
+| **V6** | Max Temp Threshold | Float | 20.0 - 45.0 °C | Remote dynamic threshold slider (Saved to EEPROM) |
+| **V7** | Sound Threshold | Integer | 100 - 1023 | Remote dynamic sound threshold slider (Saved to EEPROM) |
+| **V8** | Remote Alarm Mute | Switch | 0 / 1 | Caregiver mobile mute switch for local buzzer |
+| **V9** | System Diagnostics | String | Uptime & Free Heap | System health heartbeat string |

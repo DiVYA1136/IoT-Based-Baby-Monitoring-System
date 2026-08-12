@@ -21,6 +21,9 @@ When safety thresholds are breached, the system activates local audio/visual ala
 - **⏱️ Notification Spam Prevention**: Implements a non-blocking 60-second cooldown mechanism (`NOTIFICATION_COOLDOWN`) to avoid overwhelming the caregiver with duplicate push alerts.
 - **🚨 Local Visual & Audible Alarms**: Activates a status LED and active buzzer immediately upon hazard detection for immediate local alert.
 - **🔄 Non-blocking Wi-Fi Reconnection**: Built with asynchronous Wi-Fi recovery logic so sensor monitoring never freezes if internet connectivity drops temporarily.
+- **🔕 Remote Alarm Mute Control**: Allows caregivers to silence active alarm buzzers remotely from the mobile app via virtual pin `V8`.
+- **💾 Persistent EEPROM Storage**: Dynamic threshold settings configured via mobile sliders survive power cuts and reboots.
+- **🩺 Diagnostic Heartbeat Telemetry**: Continuous system health reporting (Uptime, Free Heap Memory, RSSI) sent to virtual pin `V9`.
 - **📊 Live Mobile & Web Dashboard**: Visual gauges, charts, and status indicators updated in real-time on the Blynk mobile application.
 
 ---
@@ -33,7 +36,7 @@ When safety thresholds are breached, the system activates local audio/visual ala
   +-----------------------+                            |
   |  Analog Sound Sensor  |---- (Pin A0 / ADC0) -------+----> [ ESP8266 NodeMCU ]
   +-----------------------+                            |              |
-  |   PIR Motion Sensor   |---- (Pin D1 / GPIO 5) -----+              | Evaluate Thresholds
+  |   PIR Motion Sensor   |---- (Pin D1 / GPIO 5) -----+              | Evaluate Thresholds, EEPROM
   +-----------------------+                                           | & Cooldown Logic
                                                                       v
   [ Local LED (D2) + Buzzer (D6) ] <----------------------------------+
@@ -46,7 +49,7 @@ When safety thresholds are breached, the system activates local audio/visual ala
                                                   |                                       |
                                                   v                                       v
                                   [ Mobile Push Notifications ]               [ Live App Dashboard ]
-                                   (Caregiver Smartphone)                       (Gauges & Controls)
+                                   (Caregiver Smartphone)                       (Gauges & Remote Mute)
 ```
 
 ---
@@ -90,7 +93,7 @@ Install via **Tools -> Manage Libraries...**:
 1. **`Blynk`** (by Volodymyr Shymanskyy)
 2. **`DHT sensor library`** (by Adafruit)
 3. **`Adafruit Unified Sensor`** (by Adafruit)
-4. **`ESP8266WiFi`** (Built into ESP8266 Arduino Board Package)
+4. **`ESP8266WiFi`** & **`EEPROM`** (Built into ESP8266 Arduino Board Package)
 
 ---
 
@@ -114,6 +117,8 @@ Install via **Tools -> Manage Libraries...**:
    - `V5`: Wi-Fi Signal Strength / RSSI (`Integer`, dBm)
    - `V6`: Dynamic High Temp Threshold Setting (`Double`, 20-45 °C)
    - `V7`: Dynamic Sound Threshold Setting (`Integer`, 100-1023)
+   - `V8`: Remote Alarm Mute Switch (`Integer`, 0/1)
+   - `V9`: System Diagnostic Telemetry (`String`)
 5. Create a new **Device** from template and copy your credentials:
    ```cpp
    #define BLYNK_TEMPLATE_ID   "TMPLxxxxxx"
