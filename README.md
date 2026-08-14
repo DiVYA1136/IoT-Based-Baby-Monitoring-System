@@ -168,6 +168,7 @@ Before deploying the monitoring system near the infant's crib, verify the follow
 For complete detailed architecture, testing procedures, circuit diagrams, and troubleshooting steps, refer to:
 - 📖 [Full Technical System Guide](baby_monitor_system_guide.md)
 - 🔌 [Detailed Circuit & Wiring Specification](CIRCUIT_DIAGRAM.md)
+- 🔬 [Hardware Specifications & Power Budget](docs/HARDWARE_SPECIFICATIONS.md)
 
 ---
 
