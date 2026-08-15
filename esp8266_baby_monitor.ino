@@ -366,6 +366,7 @@ void updateDashboard() {
   // V7: Dynamic Sound Threshold Input (100 - 1023)
   // V8: Remote Alarm Mute Switch (0=Unmuted, 1=Muted)
   // V9: System Diagnostics & Uptime String
+  // V10: Dynamic Low Temp Threshold Input (15.0 - 25.0 °C)
 
   Blynk.virtualWrite(V0, currentTemp);
   Blynk.virtualWrite(V1, currentHumidity);
@@ -414,3 +415,16 @@ BLYNK_WRITE(V8) {
     Serial.println(F("[BLYNK] Remote Alarm UNMUTED by caregiver."));
   }
 }
+
+// Dynamic Low Temperature Threshold update from Blynk App Slider/Numeric Input (V10)
+BLYNK_WRITE(V10) {
+  float val = param.asFloat();
+  if (val >= 15.0 && val <= 25.0) {
+    MIN_TEMPERATURE = val;
+    saveThresholdsToEEPROM();
+    Serial.print(F("[BLYNK] Dynamic update: MIN_TEMPERATURE set to "));
+    Serial.print(MIN_TEMPERATURE, 1);
+    Serial.println(F(" °C"));
+  }
+}
+

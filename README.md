@@ -119,6 +119,8 @@ Install via **Tools -> Manage Libraries...**:
    - `V7`: Dynamic Sound Threshold Setting (`Integer`, 100-1023)
    - `V8`: Remote Alarm Mute Switch (`Integer`, 0/1)
    - `V9`: System Diagnostic Telemetry (`String`)
+   - `V10`: Dynamic Low Temp Threshold Setting (`Double`, 15-25 °C)
+
 5. Create a new **Device** from template and copy your credentials:
    ```cpp
    #define BLYNK_TEMPLATE_ID   "TMPLxxxxxx"

@@ -77,3 +77,5 @@ This document provides complete electrical connection details, voltage requireme
 | **V7** | Sound Threshold | Integer | 100 - 1023 | Remote dynamic sound threshold slider (Saved to EEPROM) |
 | **V8** | Remote Alarm Mute | Switch | 0 / 1 | Caregiver mobile mute switch for local buzzer |
 | **V9** | System Diagnostics | String | Uptime & Free Heap | System health heartbeat string |
+| **V10** | Min Temp Threshold | Float | 15.0 - 25.0 °C | Remote dynamic low temp threshold slider (Saved to EEPROM) |
+
