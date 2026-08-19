@@ -519,7 +519,10 @@ Add the following UI widgets to your mobile dashboard:
 
 ---
 
-## 14. Troubleshooting
+## 14. Troubleshooting & Calibration Reference
+
+For extended sensor calibration instructions, analog gain tuning, pull-up resistor setups, and EEPROM diagnostic resets, refer to the dedicated guide:
+- 🛠️ [Hardware Calibration & Troubleshooting Guide](docs/TROUBLESHOOTING_AND_CALIBRATION.md)
 
 | Issue / Error | Cause | Solution |
 | :--- | :--- | :--- |

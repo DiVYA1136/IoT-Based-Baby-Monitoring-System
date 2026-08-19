@@ -171,6 +171,7 @@ For complete detailed architecture, testing procedures, circuit diagrams, and tr
 - 📖 [Full Technical System Guide](baby_monitor_system_guide.md)
 - 🔌 [Detailed Circuit & Wiring Specification](CIRCUIT_DIAGRAM.md)
 - 🔬 [Hardware Specifications & Power Budget](docs/HARDWARE_SPECIFICATIONS.md)
+- 🛠️ [Sensor Calibration & Troubleshooting Guide](docs/TROUBLESHOOTING_AND_CALIBRATION.md)
 
 ---
 
