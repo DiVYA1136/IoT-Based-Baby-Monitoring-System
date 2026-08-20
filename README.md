@@ -15,11 +15,11 @@ When safety thresholds are breached, the system activates local audio/visual ala
 ## 🌟 Key Features
 
 - **🌡️ Temperature & Humidity Monitoring**: Tracks room conditions via the DHT11 sensor to ensure a comfortable and safe environment.
-- **🔊 Cry & Noise Detection**: Reads real-time sound levels via an analog microphone module to alert caregivers when high noise or crying occurs.
+- **🔊 Cry & Noise Detection**: Reads real-time sound levels via an analog microphone module with multi-sample noise averaging to prevent false acoustic triggers.
 - **🚶 Crib Motion Detection**: Monitors movement near the baby crib using a PIR motion sensor.
 - **📱 Real-time Mobile Push Notifications**: Sends instant alert notifications directly to the caregiver's mobile phone via Blynk IoT Cloud.
 - **⏱️ Notification Spam Prevention**: Implements a non-blocking 60-second cooldown mechanism (`NOTIFICATION_COOLDOWN`) to avoid overwhelming the caregiver with duplicate push alerts.
-- **🚨 Local Visual & Audible Alarms**: Activates a status LED and active buzzer immediately upon hazard detection for immediate local alert.
+- **🚨 Local Visual & Audible Alarms**: Activates a status LED and active buzzer immediately upon hazard detection, with a visual heartbeat pulse during normal monitoring.
 - **🔄 Non-blocking Wi-Fi Reconnection**: Built with asynchronous Wi-Fi recovery logic so sensor monitoring never freezes if internet connectivity drops temporarily.
 - **🔕 Remote Alarm Mute Control**: Allows caregivers to silence active alarm buzzers remotely from the mobile app via virtual pin `V8`.
 - **💾 Persistent EEPROM Storage**: Dynamic threshold settings configured via mobile sliders survive power cuts and reboots.

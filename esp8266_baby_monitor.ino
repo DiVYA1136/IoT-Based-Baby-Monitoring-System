@@ -235,8 +235,13 @@ void readSensors() {
     currentHumidity = h;
   }
 
-  // 2. Read Sound Level from Analog Sensor Module
-  currentSound = analogRead(SOUND_PIN);
+  // 2. Read Sound Level with Multi-Sample Noise Averaging Filter
+  long soundSum = 0;
+  for (int i = 0; i < 10; i++) {
+    soundSum += analogRead(SOUND_PIN);
+    delayMicroseconds(150);
+  }
+  currentSound = (int)(soundSum / 10);
 
   // 3. Read Motion State from PIR Sensor
   currentMotion = (digitalRead(PIR_PIN) == HIGH);
@@ -308,7 +313,7 @@ void checkMotion() {
 void evaluateSystemStatus() {
   if (currentTemp > MAX_TEMPERATURE || currentTemp < MIN_TEMPERATURE || currentSound > SOUND_THRESHOLD || currentMotion) {
     isSystemNormal = false;
-    digitalWrite(LED_PIN, HIGH);     // Turn ON warning LED
+    digitalWrite(LED_PIN, HIGH);     // Turn ON warning LED continuously
     if (!isAlarmMuted) {
       digitalWrite(BUZZER_PIN, HIGH);  // Turn ON local buzzer if not muted
     } else {
@@ -317,9 +322,12 @@ void evaluateSystemStatus() {
     Serial.println(F("System Status: ALERT / ABNORMAL"));
   } else {
     isSystemNormal = true;
-    digitalWrite(LED_PIN, LOW);      // Turn OFF warning LED
     digitalWrite(BUZZER_PIN, LOW);   // Turn OFF local buzzer
-    Serial.println(F("System Status: NORMAL"));
+    // Heartbeat LED pulse (brief 50ms pulse to indicate active monitoring)
+    digitalWrite(LED_PIN, HIGH);
+    delay(50);
+    digitalWrite(LED_PIN, LOW);
+    Serial.println(F("System Status: NORMAL (Heartbeat pulse active)"));
   }
 }
 
